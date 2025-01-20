@@ -22,9 +22,9 @@ type getFilesDataIn struct {
 }
 
 type getFilesDataOut struct {
-	Files                 []*FileDataOut
-	HasMore               bool
-	NextContinuationToken string
+	Files                 []*FileDataOut `json:"files"`
+	HasMore               bool           `json:"hasMore"`
+	NextContinuationToken string         `json:"nextContinuationToken"`
 }
 
 type FileDataOut struct {
