@@ -1,0 +1,66 @@
+{
+    "scenarios": {
+        "getfiles": {
+            "seq": [
+                "get-files"
+            ]
+        },
+        "getfile": {
+            "seq": [
+                "get-file"
+            ]
+        },
+        "putfile": {
+            "seq": [
+                "put-file"
+            ]
+        },
+        "postfile": {
+            "seq": [
+                "post-file"
+            ]
+        },
+        "deletefile": {
+            "seq": [
+                "delete-file"
+            ]
+        },
+        "renamefile": {
+            "seq": [
+                "rename-file"
+            ]
+        }
+    },
+    "requests": {
+        "get-files": {
+            "method": "GET",
+            "url": "${protocol}://${server}:${port}/files?pageSize=${pageSize}&continuationToken=${continuationToken}"
+        },
+        "get-file": {
+            "method": "GET",
+            "url": "${protocol}://${server}:${port}/files/${filename}",
+            "headers": {
+                "If-None-Match": "${etag}"
+            }
+        },
+        "put-file": {
+            "method": "PUT",
+            "url": "${protocol}://${server}:${port}/files/${filename}",
+            "body": "${content}"
+        },
+        "post-file": {
+            "method": "POST",
+            "url": "${protocol}://${server}:${port}/files/${filename}",
+            "body": "${content}"
+        },
+        "delete-file": {
+            "method": "DELETE",
+            "url": "${protocol}://${server}:${port}/files/${filename}"
+        },
+        "rename-file": {
+            "method": "POST",
+            "url": "${protocol}://${server}:${port}/rename",
+            "body": "{ \"fileName\": \"${from}\", \"newFileName\": \"${to}\" }"
+        }
+    }
+}
