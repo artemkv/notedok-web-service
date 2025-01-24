@@ -109,11 +109,13 @@ func handleGetFiles(c *gin.Context /*, userId string, email string*/) {
 	// pack result
 	files := make([]*FileDataOut, 0, len(result.Files))
 	for _, file := range result.Files {
-		files = append(files, &FileDataOut{
-			FileName:     file.FileName,
-			LastModified: file.LastModified,
-			ETag:         file.ETag,
-		})
+		if isFileNameValid(file.FileName) {
+			files = append(files, &FileDataOut{
+				FileName:     file.FileName,
+				LastModified: file.LastModified,
+				ETag:         file.ETag,
+			})
+		}
 	}
 	getFilesDataOut := &getFilesDataOut{
 		Files:   files,
