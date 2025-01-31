@@ -53,10 +53,17 @@ func logAndReturnError(errIn error, errOut error) error {
 
 // Retrieves the list of files by the prefix.
 // Every record in the file list is the file name in the format "my file.txt" (stripping the prefix).
-// File names are returned as the are, no additional processing is done by this method. Business code is supposed to be able to properly convert the file name to the note title by its own means.
-// Only text files are retrieved (files that have extension ".txt"). The filtering is done after fetching the page from s3, so the page returned back to the client may be empty. To avoid this, the API should prevent users from submitting files that are not .txt.
+//
+// File names are returned as the are, no additional processing is done by this method.
+// Business code is supposed to be able to properly convert the file name to the note title by its own means.
+//
+// Only text files are retrieved (files that have extension ".txt").
+// The filtering is done after fetching the page from s3, so the page returned back to the client may be empty.
+// To avoid this, the API should prevent users from submitting files that are not ".txt".
+//
 // This method has no check for filtering out subfolders. The API should ensure the file name never comes with "/".
-// The results are not in any particular order and should be sorted on the client when all the pages are retrieved.
+//
+// The results are not in any particular order.
 func listFiles(bucket string, prefix string, pageSize int, continuationToken string) (*ListFilesResult, error) {
 	// Setup client
 	cfg, err := config.LoadDefaultConfig(context.TODO())
@@ -121,7 +128,9 @@ func listFiles(bucket string, prefix string, pageSize int, continuationToken str
 
 // Retrieves the file content as a string.
 // The file name in format "/my file.txt" (exactly as retrieved by listFiles).
+//
 // The string that is returned contains the byte array exactly as returned by S3.
+//
 // If etag matches, returns "not modified".
 func getFileContent(bucket string, prefix string, fileName string, etag string) (*GetFileContentResult, error) {
 	// Setup client
@@ -195,7 +204,8 @@ func getFileContent(bucket string, prefix string, fileName string, etag string) 
 // When restoring a deleted note, overwrite should be set to false, to avoid replacing the existing note.
 // If the note with the same path already exists, the caller should re-submit with the unique name.
 //
-// Empty file name is not allowed. If the note title is empty, the caller is supposed to ensure the path is non-empty, by applying the timestamp to the file path, i.e. "/~~1426963430173.txt"
+// Empty file name is not allowed.
+// If the note title is empty, the caller is supposed to ensure the path is non-empty, by applying the timestamp to the file path, i.e. "/~~1426963430173.txt"
 func saveFileContent(bucket string, prefix string, fileName string, content string, overwrite bool) (*SaveFileContentResult, error) {
 	// Setup client
 	cfg, err := config.LoadDefaultConfig(context.TODO())
@@ -241,14 +251,18 @@ func saveFileContent(bucket string, prefix string, fileName string, content stri
 
 // Renames the file by changing the corresponding file name to the new file name.
 // The file name in format "/my file.txt" (exactly as retrieved by listFiles).
+//
 // The new file name is supposed to be file system-friendly, and don't use any special characters that are not allowed by any existing file system.
 // In practice that means it should not contain any of the following characters: /?<>\:*|"^
 // S3 has it's own recommendations for special characters in the object name: https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
+//
 // The file with the file name provided is supposed to exist, ot the error will be returned.
+//
 // If the file with new file name already exists, the method will return error.
 // The caller should check for "already exists" error and re-submit it with the unique name.
 // Uniqueness can be ensured by applying the timestamp to the file path, i.e. "/my file~~1426963430173.txt"
-// If none of the files exist, it will create an empty file with the target name.
+//
+// If none of the files exist, it will create an empty file with the target name, which is kind of logical.
 func renameFile(bucket string, prefix string, fileName string, newFileName string) (*RenameFileResult, error) {
 	// Setup client
 	cfg, err := config.LoadDefaultConfig(context.TODO())
@@ -314,7 +328,8 @@ func renameFile(bucket string, prefix string, fileName string, newFileName strin
 
 // Deletes the file with the specified file name.
 // The file name in format "/my file.txt" (exactly as retrieved by listFiles).
-// If file does not exist, returns success.
+//
+// If file does not exist, does nothing and returns success.
 func deleteFile(bucket string, prefix string, fileName string) error {
 	// Setup client
 	cfg, err := config.LoadDefaultConfig(context.TODO())

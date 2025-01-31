@@ -17,7 +17,7 @@ var (
 )
 
 type getFilesDataIn struct {
-	PageSize          int    `form:"pageSize"`
+	PageSize          int    `form:"pageSize"` // TODO: maybe rename to MaxPageSize, since can return less
 	ContinuationToken string `form:"continuationToken"`
 }
 
