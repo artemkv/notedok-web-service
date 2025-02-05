@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/url"
 	"strings"
 	"time"
 
@@ -282,7 +283,7 @@ func renameFile(bucket string, prefix string, fileName string, newFileName strin
 	}
 
 	// Initialize input
-	source := bucket + "/" + prefix + fileName
+	source := bucket + "/" + prefix + url.QueryEscape(fileName)
 	newKey := prefix + newFileName
 	copyObjectInput := &s3.CopyObjectInput{
 		Bucket:     &bucket,
