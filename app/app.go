@@ -38,16 +38,12 @@ func SetupRouter(router *gin.Engine, allowedOrigin string) {
 	router.POST("/signin", reststats.HandleEndpointWithStats(handleSignIn))
 
 	// do business
-	router.GET("/files", reststats.HandleEndpointWithStats(handleGetFiles))
-	router.GET("/files/:filename", reststats.HandleEndpointWithStats(handleGetFile))
-	router.PUT("/files/:filename", reststats.HandleEndpointWithStats(handlePutFile))
-	router.POST("/files/:filename", reststats.HandleEndpointWithStats(handlePostFile))
-	router.DELETE("/files/:filename", reststats.HandleEndpointWithStats(handleDeleteFile))
-	router.POST("/rename", reststats.HandleEndpointWithStats(handleRenameFile))
-
-	// TODO: add withAuthentication, e.g.
-	/*	router.GET("/files", reststats.HandleEndpointWithStats(
-		withAuthentication(handleGetFiles)))*/
+	router.GET("/files", reststats.HandleEndpointWithStats(withAuthentication(handleGetFiles)))
+	router.GET("/files/:filename", reststats.HandleEndpointWithStats(withAuthentication(handleGetFile)))
+	router.PUT("/files/:filename", reststats.HandleEndpointWithStats(withAuthentication(handlePutFile)))
+	router.POST("/files/:filename", reststats.HandleEndpointWithStats(withAuthentication(handlePostFile)))
+	router.DELETE("/files/:filename", reststats.HandleEndpointWithStats(withAuthentication(handleDeleteFile)))
+	router.POST("/rename", reststats.HandleEndpointWithStats(withAuthentication(handleRenameFile)))
 
 	// handle 404
 	router.NoRoute(reststats.HandleWithStats(notFoundHandler()))

@@ -54,13 +54,7 @@ type renameFileDataIn struct {
 	NewFileName string `json:"newFileName" binding:"required"`
 }
 
-// TODO: get user and use as a prefix
-func handleGetFiles(c *gin.Context /*, userId string, email string*/) {
-	// fmt.Println("user id: " + userId)
-	// fmt.Println("email: " + email)
-
-	// TODO: should come from args
-	userId := "user002"
+func handleGetFiles(c *gin.Context, userId string, email string) {
 	prefix := userId + "/"
 
 	// get params from query string
@@ -128,13 +122,7 @@ func handleGetFiles(c *gin.Context /*, userId string, email string*/) {
 	toSuccess(c, getFilesDataOut)
 }
 
-// TODO: get user and use as a prefix
-func handleGetFile(c *gin.Context /*, userId string, email string*/) {
-	// fmt.Println("user id: " + userId)
-	// fmt.Println("email: " + email)
-
-	// TODO: should come from args
-	userId := "user002"
+func handleGetFile(c *gin.Context, userId string, email string) {
 	prefix := userId + "/"
 
 	// get params from url
@@ -188,13 +176,7 @@ func handleGetFile(c *gin.Context /*, userId string, email string*/) {
 	toPlainTextWithEtag(c, result.Content, result.ETag)
 }
 
-// TODO: get user and use as a prefix
-func handlePutFile(c *gin.Context /*, userId string, email string*/) {
-	// fmt.Println("user id: " + userId)
-	// fmt.Println("email: " + email)
-
-	// TODO: should come from args
-	userId := "user002"
+func handlePutFile(c *gin.Context, userId string, email string) {
 	prefix := userId + "/"
 
 	// get params from url
@@ -235,13 +217,7 @@ func handlePutFile(c *gin.Context /*, userId string, email string*/) {
 	toNoContentWithEtag(c, result.ETag)
 }
 
-// TODO: get user and use as a prefix
-func handlePostFile(c *gin.Context /*, userId string, email string*/) {
-	// fmt.Println("user id: " + userId)
-	// fmt.Println("email: " + email)
-
-	// TODO: should come from args
-	userId := "user002"
+func handlePostFile(c *gin.Context, userId string, email string) {
 	prefix := userId + "/"
 
 	// get params from url
@@ -287,13 +263,7 @@ func handlePostFile(c *gin.Context /*, userId string, email string*/) {
 	toNoContentWithEtag(c, result.ETag)
 }
 
-// TODO: get user and use as a prefix
-func handleDeleteFile(c *gin.Context /*, userId string, email string*/) {
-	// fmt.Println("user id: " + userId)
-	// fmt.Println("email: " + email)
-
-	// TODO: should come from args
-	userId := "user002"
+func handleDeleteFile(c *gin.Context, userId string, email string) {
 	prefix := userId + "/"
 
 	// get params from url
@@ -326,13 +296,7 @@ func handleDeleteFile(c *gin.Context /*, userId string, email string*/) {
 	toNoContent(c)
 }
 
-// TODO: get user and use as a prefix
-func handleRenameFile(c *gin.Context /*, userId string, email string*/) {
-	// fmt.Println("user id: " + userId)
-	// fmt.Println("email: " + email)
-
-	// TODO: should come from args
-	userId := "user002"
+func handleRenameFile(c *gin.Context, userId string, email string) {
 	prefix := userId + "/"
 
 	// get app data from the POST body
