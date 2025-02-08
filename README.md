@@ -29,8 +29,9 @@ gowatch
 ## Environment Variables
 
 ```
-NOTEDOK_PORT=:8700
-NOTEDOK_ALLOW_ORIGIN=http://127.0.0.1:8080
+NOTEDOK_PORT=:8100
+NOTEDOK_ALLOW_ORIGIN=http://localhost:5173
+NOTEDOK_SESSION_ENCRYPTION_PASSPHRASE=some secret phrase
 
 NOTEDOK_BUCKET=net.artemkv.tests3
 
