@@ -10,10 +10,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var _bucket string
+
+func InitBucket(bucket string) error {
+	if bucket == "" {
+		return fmt.Errorf("empty value for the bucket")
+	}
+
+	_bucket = bucket
+	return nil
+}
+
 var (
-	// TODO: point to a correct bucket name
-	BUCKET            string = "net.artemkv.tests3"
-	PAGE_SIZE_DEFAULT int    = 100 // promote small pages to avoid loading too much into memory
+	PAGE_SIZE_DEFAULT int = 100 // promote small pages to avoid loading too much into memory
 )
 
 type getFilesDataIn struct {
@@ -89,7 +98,7 @@ func handleGetFiles(c *gin.Context, userId string, email string) {
 	}
 
 	// get files
-	result, err := listFiles(BUCKET, prefix, pageSize, continuationToken)
+	result, err := listFiles(_bucket, prefix, pageSize, continuationToken)
 	if err != nil {
 		if errors.Is(err, ErrInvalidArgument) {
 			toBadRequest(c, err)
@@ -158,7 +167,7 @@ func handleGetFile(c *gin.Context, userId string, email string) {
 	}
 
 	// get file content
-	result, err := getFileContent(BUCKET, prefix, fileName, etag)
+	result, err := getFileContent(_bucket, prefix, fileName, etag)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			toNotFound(c)
@@ -208,7 +217,7 @@ func handlePutFile(c *gin.Context, userId string, email string) {
 	}
 
 	// save file content
-	result, err := saveFileContent(BUCKET, prefix, fileName, content, true)
+	result, err := saveFileContent(_bucket, prefix, fileName, content, true)
 	if err != nil {
 		toInternalServerError(c, err.Error())
 		return
@@ -249,7 +258,7 @@ func handlePostFile(c *gin.Context, userId string, email string) {
 	}
 
 	// save file content
-	result, err := saveFileContent(BUCKET, prefix, fileName, content, false)
+	result, err := saveFileContent(_bucket, prefix, fileName, content, false)
 	if err != nil {
 		if errors.Is(err, ErrAlreadyExists) {
 			toConflict(c, err)
@@ -287,7 +296,7 @@ func handleDeleteFile(c *gin.Context, userId string, email string) {
 	}
 
 	// get file content
-	err = deleteFile(BUCKET, prefix, fileName)
+	err = deleteFile(_bucket, prefix, fileName)
 	if err != nil {
 		toInternalServerError(c, err.Error())
 		return
@@ -331,7 +340,7 @@ func handleRenameFile(c *gin.Context, userId string, email string) {
 	}
 
 	// rename the file
-	result, err := renameFile(BUCKET, prefix, fileName, newFileName)
+	result, err := renameFile(_bucket, prefix, fileName, newFileName)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			toNotFound(c)

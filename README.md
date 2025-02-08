@@ -32,6 +32,8 @@ gowatch
 NOTEDOK_PORT=:8700
 NOTEDOK_ALLOW_ORIGIN=http://127.0.0.1:8080
 
+NOTEDOK_BUCKET=net.artemkv.tests3
+
 NOTEDOK_TLS=false
 NOTEDOK_CERT_FILE=cert.pem
 NOTEDOK_KEY_FILE=key.unencrypted.pem

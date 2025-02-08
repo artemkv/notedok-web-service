@@ -23,6 +23,13 @@ func main() {
 	// load .env
 	LoadDotEnv()
 
+	// read the bucket
+	bucket := GetMandatoryString("NOTEDOK_BUCKET")
+	err := app.InitBucket(bucket)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// initialize session encryption key
 	sessionEncryptionPassphrase := GetMandatoryString("NOTEDOK_SESSION_ENCRYPTION_PASSPHRASE")
 	app.SetEncryptionPassphrase(sessionEncryptionPassphrase)
