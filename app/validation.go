@@ -16,7 +16,7 @@ func isPageSizeValid(pageSize int) bool {
 }
 
 func isContinuationTokenValid(continuationToken string) bool {
-	return len(continuationToken) <= 100
+	return len(continuationToken) <= 1000
 }
 
 func isFileNameValid(fileName string) bool {

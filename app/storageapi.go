@@ -84,7 +84,7 @@ func handleGetFiles(c *gin.Context, userId string, email string) {
 		pageSize = PAGE_SIZE_DEFAULT
 	}
 	if !isContinuationTokenValid(getFilesIn.ContinuationToken) {
-		err := fmt.Errorf("invalid continuationToken '%s', should be less than 100 chars long", getFilesIn.ContinuationToken)
+		err := fmt.Errorf("invalid continuationToken '%s', should be less than 1000 chars long", getFilesIn.ContinuationToken)
 		toBadRequest(c, err)
 		return
 	}
