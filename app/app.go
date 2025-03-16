@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -14,10 +15,13 @@ import (
 )
 
 func SetupRouter(router *gin.Engine, allowedOrigin string) {
-	// setup logger, recover and CORS
+	// setup logger and recover
 	router.Use(requestLogger(log.StandardLogger()))
 	router.Use(gin.CustomRecovery(recover))
-	router.Use(cors.New(getCorsConfig(allowedOrigin)))
+
+	// setup CORS
+	allowedOrigins := strings.Split(allowedOrigin, ",")
+	router.Use(cors.New(getCorsConfig(allowedOrigins)))
 
 	// favicon
 	router.StaticFile("/favicon.ico", "./resources/favicon.ico")
@@ -49,11 +53,12 @@ func SetupRouter(router *gin.Engine, allowedOrigin string) {
 	router.NoRoute(reststats.HandleWithStats(notFoundHandler()))
 }
 
-func getCorsConfig(allowedOrigin string) cors.Config {
+func getCorsConfig(allowedOrigins []string) cors.Config {
 	return cors.Config{
-		AllowOrigins: []string{allowedOrigin},
-		AllowHeaders: []string{"*"},
-		AllowMethods: []string{"*"},
+		AllowOrigins:  allowedOrigins,
+		AllowHeaders:  []string{"*"},
+		AllowMethods:  []string{"*"},
+		ExposeHeaders: []string{"*"},
 	}
 }
 

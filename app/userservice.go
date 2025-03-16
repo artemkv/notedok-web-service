@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"slices"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/lestrrat-go/jwx/jwk"
@@ -11,7 +12,7 @@ import (
 
 var cognitoKeysUrl = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_oDBGh8hef/.well-known/jwks.json"
 var tokenIssuer = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_oDBGh8hef"
-var tokenAudience = "171uojgfrbv775ultuqk12os85"
+var tokenAudiences = []string{"171uojgfrbv775ultuqk12os85", "7e381s8r9gd2dntnuchems6epv"}
 
 var keySet jwk.Set
 
@@ -48,7 +49,7 @@ func parseAndValidateIdToken(idToken string) (*parsedTokenData, error) {
 	}
 
 	// The audience (aud) claim should match the app client ID that was created in the Amazon Cognito user pool
-	if claims.Audience != tokenAudience {
+	if !slices.Contains(tokenAudiences, claims.Audience) {
 		return nil, fmt.Errorf("wrong value of audience: %s", claims.Audience)
 	}
 	// The issuer (iss) claim should match your user pool
