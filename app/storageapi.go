@@ -364,7 +364,6 @@ func handleDeleteAllFiles(c *gin.Context, userId string, email string) {
 
 	err := deleteAllFiles(_bucket, prefix)
 	if err != nil {
-
 		toInternalServerError(c, err.Error())
 		return
 	}
