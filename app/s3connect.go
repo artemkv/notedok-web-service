@@ -52,15 +52,24 @@ func logAndReturnError(errIn error, errOut error) error {
 	return errOut
 }
 
+func isSupportedFileType(fileName *string) bool {
+	return strings.HasSuffix(*fileName, ".txt") || strings.HasSuffix(*fileName, ".md")
+}
+
+func isMarkdown(fileName string) bool {
+	return strings.HasSuffix(fileName, ".md")
+}
+
 // Retrieves the list of files by the prefix.
-// Every record in the file list is the file name in the format "my file.txt" (stripping the prefix).
+// Supports 2 types of files: text (.txt) and markdown (.md)
+// Every record in the file list is the file name in the format "my file.md" or "my file.txt" (stripping the prefix).
 //
-// File names are returned as the are, no additional processing is done by this method.
+// File names are returned as they are, no additional processing is done by this method.
 // Business code is supposed to be able to properly convert the file name to the note title by its own means.
 //
-// Only text files are retrieved (files that have extension ".txt").
+// Only markdown and text files are retrieved (files that have extension either ".md" or ".txt").
 // The filtering is done after fetching the page from s3, so the page returned back to the client may be empty.
-// To avoid this, the API should prevent users from submitting files that are not ".txt".
+// To avoid this, the API should prevent users from submitting files that are neither ".md" nor ".txt".
 //
 // This method has no check for filtering out subfolders. The API should ensure the file name never comes with "/".
 //
@@ -102,11 +111,11 @@ func listFiles(bucket string, prefix string, pageSize int, continuationToken str
 	// Process the output
 	files := make([]*FileData, 0, len(output.Contents))
 	for _, obj := range output.Contents {
-		if strings.HasSuffix(*obj.Key, ".txt") {
-			stripped, _ := strings.CutPrefix(*obj.Key, prefix)
+		if isSupportedFileType(obj.Key) {
+			prefixStripped, _ := strings.CutPrefix(*obj.Key, prefix)
 
 			file := &FileData{
-				FileName:     stripped,
+				FileName:     prefixStripped,
 				LastModified: *obj.LastModified,
 				ETag:         *obj.ETag,
 			}
@@ -128,7 +137,7 @@ func listFiles(bucket string, prefix string, pageSize int, continuationToken str
 }
 
 // Retrieves the file content as a string.
-// The file name in format "/my file.txt" (exactly as retrieved by listFiles).
+// The file name in format "my file.md" or "my file.txt" (exactly as retrieved by listFiles).
 //
 // The string that is returned contains the byte array exactly as returned by S3.
 //
@@ -184,13 +193,11 @@ func getFileContent(bucket string, prefix string, fileName string, etag string) 
 	return result, nil
 }
 
-// TODO: test special characters
-
 // Saves the content into a file with the specified file name.
-// The file name in format "/my file.txt" (exactly as retrieved by listFiles).
+// The file name in format "my file.md" or "my file.txt" (exactly as retrieved by listFiles).
 //
 // The file name is supposed to be file system-friendly, and don't use any special characters that are not allowed by any existing file system.
-// In practice that means it should not contain any of the following characters: /?<>\:*|"^
+// In practice that means it should not contain any of the following characters: /?<>\:*|"^%
 // S3 has it's own recommendations for special characters in the object name: https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
 //
 // The string is passed to S3 as is, no attempt to ensure encoding is done.
@@ -198,7 +205,7 @@ func getFileContent(bucket string, prefix string, fileName string, etag string) 
 //
 // For a new note, overwrite should be set to false to avoid replacing the existing note.
 // The caller should check for "already exists" error and re-submit it with the unique name.
-// Uniqueness can be ensured by applying the timestamp to the file path, i.e. "/my file~~1426963430173.txt"
+// Uniqueness can be ensured by applying the timestamp to the file path, i.e. "my file~~1426963430173.txt"
 //
 // For an existing note, overwrite should be set to true.
 //
@@ -217,7 +224,12 @@ func saveFileContent(bucket string, prefix string, fileName string, content stri
 
 	// Initialize input
 	key := prefix + fileName
-	contentType := "text/plain"
+	var contentType string
+	if isMarkdown(fileName) {
+		contentType = "text/markdown; charset=UTF-8"
+	} else {
+		contentType = "text/plain"
+	}
 	input := &s3.PutObjectInput{
 		Bucket:      &bucket,
 		Key:         &key,
@@ -251,17 +263,17 @@ func saveFileContent(bucket string, prefix string, fileName string, content stri
 }
 
 // Renames the file by changing the corresponding file name to the new file name.
-// The file name in format "/my file.txt" (exactly as retrieved by listFiles).
+// The file name in format "my file.md" or "my file.txt" (exactly as retrieved by listFiles).
 //
 // The new file name is supposed to be file system-friendly, and don't use any special characters that are not allowed by any existing file system.
-// In practice that means it should not contain any of the following characters: /?<>\:*|"^
+// In practice that means it should not contain any of the following characters: /?<>\:*|"^%
 // S3 has it's own recommendations for special characters in the object name: https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
 //
 // The file with the file name provided is supposed to exist, ot the error will be returned.
 //
 // If the file with new file name already exists, the method will return error.
 // The caller should check for "already exists" error and re-submit it with the unique name.
-// Uniqueness can be ensured by applying the timestamp to the file path, i.e. "/my file~~1426963430173.txt"
+// Uniqueness can be ensured by applying the timestamp to the file path, i.e. "my file~~1426963430173.txt"
 //
 // If none of the files exist, it will create an empty file with the target name, which is kind of logical.
 func renameFile(bucket string, prefix string, fileName string, newFileName string) (*RenameFileResult, error) {
@@ -328,7 +340,7 @@ func renameFile(bucket string, prefix string, fileName string, newFileName strin
 }
 
 // Deletes the file with the specified file name.
-// The file name in format "/my file.txt" (exactly as retrieved by listFiles).
+// The file name in format "my file.md" or "my file.txt" (exactly as retrieved by listFiles).
 //
 // If file does not exist, does nothing and returns success.
 func deleteFile(bucket string, prefix string, fileName string) error {

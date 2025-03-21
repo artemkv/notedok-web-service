@@ -182,6 +182,7 @@ func handleGetFile(c *gin.Context, userId string, email string) {
 		return
 	}
 
+	// technically speaking, this should be "text/markdown; charset=UTF-8" for markdown files
 	toPlainTextWithEtag(c, result.Content, result.ETag)
 }
 

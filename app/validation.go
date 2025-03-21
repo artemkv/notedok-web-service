@@ -21,9 +21,9 @@ func isContinuationTokenValid(continuationToken string) bool {
 
 func isFileNameValid(fileName string) bool {
 	return len(fileName) <= 200 &&
-		len(fileName) > 4 && // ensure it's not just ".txt"
-		!strings.Contains(fileName, "/") &&
-		strings.HasSuffix(fileName, ".txt")
+		((strings.HasSuffix(fileName, ".txt") && len(fileName) > 4) ||
+			(strings.HasSuffix(fileName, ".md") && len(fileName) > 3)) &&
+		!strings.Contains(fileName, "/")
 }
 
 func isEtagValid(etag string) bool {
