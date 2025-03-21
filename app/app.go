@@ -48,6 +48,7 @@ func SetupRouter(router *gin.Engine, allowedOrigin string) {
 	router.POST("/files/:filename", reststats.HandleEndpointWithStats(withAuthentication(handlePostFile)))
 	router.DELETE("/files/:filename", reststats.HandleEndpointWithStats(withAuthentication(handleDeleteFile)))
 	router.POST("/rename", reststats.HandleEndpointWithStats(withAuthentication(handleRenameFile)))
+	router.POST("/deleteall", reststats.HandleEndpointWithStats(withAuthentication(handleDeleteAllFiles)))
 
 	// handle 404
 	router.NoRoute(reststats.HandleWithStats(notFoundHandler()))

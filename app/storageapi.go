@@ -359,6 +359,19 @@ func handleRenameFile(c *gin.Context, userId string, email string) {
 	toNoContentWithEtag(c, result.ETag)
 }
 
+func handleDeleteAllFiles(c *gin.Context, userId string, email string) {
+	prefix := userId + "/"
+
+	err := deleteAllFiles(_bucket, prefix)
+	if err != nil {
+
+		toInternalServerError(c, err.Error())
+		return
+	}
+
+	toNoContent(c)
+}
+
 func readBody(c *gin.Context) string {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(c.Request.Body)

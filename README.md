@@ -73,3 +73,5 @@ rq deletefile filename="test002.txt" -e dev
 -- with target file that does not exist: renames
 rq renamefile from="test001.txt" to="test002.txt" -e dev
 ```
+
+TODO: add deleteall

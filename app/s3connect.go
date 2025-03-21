@@ -8,8 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/smithy-go"
 	log "github.com/sirupsen/logrus"
 )
@@ -369,6 +371,84 @@ func deleteFile(bucket string, prefix string, fileName string) error {
 		}
 
 		return logAndReturnError(err, ErrServiceUnavailable)
+	}
+
+	return nil
+}
+
+// Deletes all the files with a given prefix
+// Delete is done in batches of 1000, since this is how S3 handles it
+func deleteAllFiles(bucket string, prefix string) error {
+	objectIds, err := fetchFirst1000objects(bucket, prefix)
+	if err != nil {
+		return err
+	}
+	for len(objectIds) > 0 {
+		deleteObjects(bucket, objectIds)
+
+		objectIds, err = fetchFirst1000objects(bucket, prefix)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func fetchFirst1000objects(bucket string, prefix string) ([]types.ObjectIdentifier, error) {
+	// Setup client
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		return nil, err
+	}
+	s3client := s3.NewFromConfig(cfg)
+
+	// Initialize input
+	maxKeys := int32(1000)
+	input := &s3.ListObjectsV2Input{
+		Bucket:  &bucket,
+		Prefix:  &prefix,
+		MaxKeys: &maxKeys,
+	}
+
+	// Fetch the files
+	output, err := s3client.ListObjectsV2(context.TODO(), input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Process the output
+	objectIds := make([]types.ObjectIdentifier, 0, len(output.Contents))
+	for _, obj := range output.Contents {
+		id := &types.ObjectIdentifier{
+			Key: obj.Key,
+		}
+		objectIds = append(objectIds, *id)
+	}
+
+	return objectIds, nil
+}
+
+func deleteObjects(bucket string, objectIds []types.ObjectIdentifier) error {
+	// Setup client
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		return err
+	}
+	s3client := s3.NewFromConfig(cfg)
+
+	// Initialize input for deleting the file
+	input := &s3.DeleteObjectsInput{
+		Bucket: &bucket,
+		Delete: &types.Delete{
+			Objects: objectIds,
+			Quiet:   aws.Bool(true),
+		},
+	}
+
+	// Delete files
+	_, err = s3client.DeleteObjects(context.TODO(), input)
+	if err != nil {
+		return err
 	}
 
 	return nil
